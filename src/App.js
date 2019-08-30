@@ -1,25 +1,63 @@
 import React from 'react';
-import logo from './logo.svg';
+import {BrowserRouter as Router, Route, Link, Redirect} from 'react-router-dom';
+
 import './App.css';
 
-function App() {
+import {authService} from './_services';
+
+import {LoginPage} from './LoginPage';
+import {RegisterPage} from './RegisterPage';
+import {HomePage} from './HomePage';
+
+function PrivateRoute({component: Component, ...rest}) {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Route
+      {...rest}
+      render={props =>
+        authService.isAuthenticated()
+          ? <Component {...props} />
+          : <Redirect
+              to={{
+                pathname: '/login',
+                state: {from: props.location},
+              }}
+            />}
+    />
+  );
+}
+
+function RootPage(props) {
+  return <Redirect to={{pathname: '/home', state: {from: props.location},}} />
+}
+
+function App () {
+  return (
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Root</Link>
+            </li>
+            <li>
+              <Link to="/home">Home</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/register">Register</Link>
+            </li>
+          </ul>
+        </nav>
+
+        
+        <Route path="/" exact component={RootPage} />
+        <PrivateRoute path="/home" component={HomePage} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/register" component={RegisterPage} />
+      </div>
+    </Router>
   );
 }
 

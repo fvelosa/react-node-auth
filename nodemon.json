@@ -1,0 +1,6 @@
+{
+  "watch": ["./server/server.js", "server/**/*.js"],
+  "verbose": "true",
+  "ignore": [],
+  "exec": "node --inspect ./server/server.js"
+} 
