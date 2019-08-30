@@ -31,7 +31,8 @@ export class LoginPage extends React.Component {
 
     if (this.state.username && this.state.password) {
       if (await authService.login (username, password)) {
-        this.props.history.push ('/home');
+        this.setState ({message: 'Login successfull.'});
+        setTimeout (() => this.props.history.push ('/home'), 1000);
       } else {
         this.setState ({message: 'Login Failed'});
       }
