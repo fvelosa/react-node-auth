@@ -1,3 +1,4 @@
+const bcrypt = require ('bcrypt');
 class UserService {
   users = [];
 
@@ -24,7 +25,7 @@ class UserService {
   authenticate (username, password) {
     const user = this.get (username);
     if (user) {
-      if (password === user.password) {
+      if (bcrypt.compareSync(password,user.password)) {
         return user;
       } else {
         throw new Error ('Forbidden');

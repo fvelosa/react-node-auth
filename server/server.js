@@ -6,9 +6,11 @@ const morgan = require ('morgan');
 const passport = require ('@passport-next/passport');
 const {Strategy, ExtractJwt} = require ('passport-jwt');
 let jwt = require ('jsonwebtoken');
+const bcrypt = require ('bcrypt');
 
 const userService = require ('./user.service');
 
+const saltRounds = 10;
 const jwtSecret = '123456';
 
 const app = express ();
@@ -17,14 +19,14 @@ app.use (bodyParser.json ());
 app.use (cors ());
 app.use (morgan ('combined'));
 
-app.use(passport.initialize());
+app.use (passport.initialize ());
 
-app.post ('/api/auth/login', (req, res, next) => {
+app.post ('/api/auth/login', async (req, res, next) => {
   const username = req.body.username;
   const password = req.body.password;
 
   try {
-    const user = userService.authenticate (username, password);
+    const user = await userService.authenticate (username, password);
     if (user) {
       const token = jwt.sign (user, jwtSecret, {
         expiresIn: '1h', // expires in 24 hours
@@ -34,8 +36,8 @@ app.post ('/api/auth/login', (req, res, next) => {
         user: {
           username: user.username,
           firstName: user.firstName,
-          lastName: user.lastName
-        }
+          lastName: user.lastName,
+        },
       });
     } else {
       res.sendStatus (401);
@@ -66,14 +68,26 @@ passport.use (
   })
 );
 
-app.post ('/api/register', (req, res, next) => {
+app.post ('/api/register', async (req, res, next) => {
   console.log (req.body);
   const user = {
     username: req.body.username,
-    password: req.body.password,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
   };
+
+  try {
+    const hashedPassword = await bcrypt.hash (req.body.password, saltRounds);
+    if (hashedPassword) {
+      user.password = hashedPassword;
+    } else {
+      res.sendStatus (400);
+    }
+  } catch (e) {
+    console.log (e);
+    res.sendStatus (400);
+  }
+  
   try {
     userService.register (user);
     res.sendStatus (200);
@@ -83,9 +97,13 @@ app.post ('/api/register', (req, res, next) => {
   }
 });
 
-app.get ('/api/users', passport.authenticate('jwt', {session: false}), (req, res, next) => {
-  res.json (userService.getAll ());
-});
+app.get (
+  '/api/users',
+  passport.authenticate ('jwt', {session: false}),
+  (req, res, next) => {
+    res.json (userService.getAll ());
+  }
+);
 
 app.listen (3001, () => {
   console.log ('listening on port 3001');
