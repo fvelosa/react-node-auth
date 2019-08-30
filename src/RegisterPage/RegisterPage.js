@@ -15,6 +15,7 @@ export class RegisterPage extends React.Component {
         password: '',
       },
       submitted: false,
+      message: '',
     };
 
     this.handleChange = this.handleChange.bind (this);
@@ -41,18 +42,21 @@ export class RegisterPage extends React.Component {
       try {
         const res = await authService.register (user);
         if (res.status === 200) {
-          this.props.history.push ('/login');
+          this.setState ({message: 'User created, please login!'});
+          setTimeout (() => this.props.history.push ('/login'), 1500);
         } else {
           console.log (res);
+          this.setState({message: 'Failed to register the user'})
         }
       } catch (e) {
-        console.log(e)
+        console.log (e);
+        this.setState({message: 'Failed to register the user'})
       }
     }
   }
 
   render () {
-    const {user, submitted} = this.state;
+    const {user, submitted, message} = this.state;
     return (
       <div className="col-md-6 col-md-offset-3">
         <h2>Register</h2>
@@ -128,6 +132,7 @@ export class RegisterPage extends React.Component {
           <div className="form-group">
             <button className="btn btn-primary">Register</button>
             <Link to="/login" className="btn btn-link">Cancel</Link>
+            <p>{message}</p>
           </div>
         </form>
       </div>
