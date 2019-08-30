@@ -4,9 +4,13 @@ This project is a small authentication app using react and nodejs.
 
 Starts the react app on port 3000
 
-### `npm serve`
+### `npm run serve`
 
 Starts the nodejs api on port 3001
+
+### `npm run serve:debug`
+
+Starts the nodejs api in debug mode on port 3001
 
 ### Linmitations and bugs
 
