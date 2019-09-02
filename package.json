@@ -1,7 +1,7 @@
 {
   "name": "react-nodejs-auth",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@passport-next/passport": "^3.0.0",
     "@passport-next/passport-local": "^1.2.0",
